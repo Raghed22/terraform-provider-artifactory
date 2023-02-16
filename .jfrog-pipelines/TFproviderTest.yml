@@ -17,6 +17,7 @@ pipelines:
       - name: build_and_run_tf_provider
         type: Bash
         configuration:
+          nodePool: default
           priority: 1
           timeoutSeconds: 1800 # 30 minutes
           runtime:
