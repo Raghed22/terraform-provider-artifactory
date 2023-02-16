@@ -155,7 +155,7 @@ pipelines:
             - send_notification partnership_slack --text "Terraform Provider Artifactory step ${step_name} is completed. Version ${NEXT_PROVIDER_VERSION:-" wasn't set"}."
           onFailure:
             - echo "Failure"
-            - send_notification partnership_slack --text "Pipeline failed on <${step_url}|${step_name}> step"
+            - send_notification partnership_slack --text "${pipeline_name} pipeline failed on <${step_url}|${step_name}> step"
           onComplete:
             - echo "Complete"
 
