@@ -32,6 +32,7 @@ pipelines:
             - name: partnership_github
             - name: repo21_artifactory
             - name: terraform_artifactory_sonarqube
+            - name: partnership_rt_cluster_license
           inputResources:
             - name: GitHubTFProviderRepo1JFrog
           environmentVariables:
@@ -43,6 +44,7 @@ pipelines:
             SONAR_SCANNER_OPTS: "-server"
         execution:
           onStart:
+            #TODO: remove
             - printenv
             - echo "Preparing for work. Install Helm, Terraform, GoReleaser, and SonarQube"
             - ls -al && pwd
