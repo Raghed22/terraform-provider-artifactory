@@ -85,9 +85,12 @@ pipelines:
             - cat sample.tf
             - echo "Download RT licenses from Partners RT instanse to scripts folder"
             - jfrog config show && jfrog --version
-            - jfrog rt dl fozzie/native-steps/license/artifactory.cluster.license scripts/
-            - ls -al && pwd
-            - cp scripts/native-steps/license/artifactory.cluster.license scripts/artifactory.lic
+            # TODO: move this file somewhere on repo21
+            #- jfrog rt dl fozzie/native-steps/license/artifactory.cluster.license scripts/
+            #- ls -al && pwd
+            #- cp scripts/native-steps/license/artifactory.cluster.license scripts/artifactory.lic
+            - cat ${int_partnership_rt_cluster_license_5licenses} > scripts/artifactory.lic
+            - cat scripts/artifactory.lic
             - echo "Set Artifactory version, run RT in a container"
             - >-
               if [[ ${USE_LATEST_RT_VERSION} == "true" ]]; then
