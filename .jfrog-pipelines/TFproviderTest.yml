@@ -91,7 +91,7 @@ pipelines:
             #- jfrog rt dl fozzie/native-steps/license/artifactory.cluster.license scripts/
             #- ls -al && pwd
             #- cp scripts/native-steps/license/artifactory.cluster.license scripts/artifactory.lic
-            - cat ${int_partnership_rt_cluster_license_5licenses} > scripts/artifactory.lic
+            - echo ${int_partnership_rt_cluster_license_5licenses} > scripts/artifactory.lic
             - cat scripts/artifactory.lic
             - echo "Set Artifactory version, run RT in a container"
             - >-
