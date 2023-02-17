@@ -63,7 +63,6 @@ pipelines:
             - echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | sudo tee /etc/apt/sources.list.d/goreleaser.list
             - sudo apt update
             - sudo apt install goreleaser
-            # TODO: test again after migration to repo21
             - echo "Install SonarQube"
             - curl --create-dirs -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip
             - unzip -o $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
@@ -74,10 +73,11 @@ pipelines:
             - cd ${res_GitHubTFProviderRepo1JFrog_resourcePath} # we need to manually move into the resource path
             - echo "Verify the code contents merged feature branch with master branch (detached mode)"
             - git branch && ls -al
-            - export PROVIDER_VERSION=$(git tag --sort=-v:refname | head -1 | sed  -n 's/v\([0-9]*\).\([0-9]*\).\([0-9]*\)/\1.\2.\3/p')
+            #- export PROVIDER_VERSION=$(git tag --sort=-v:refname | head -1 | sed  -n 's/v\([0-9]*\).\([0-9]*\).\([0-9]*\)/\1.\2.\3/p')
+            - add_run_variables PROVIDER_VERSION=$(head -1 CHANGELOG.md | awk '{print $2}')
             - export NEXT_PROVIDER_VERSION=$(echo ${PROVIDER_VERSION}| awk -F '.' '{print $1 "." $2 "." $3 +1 }')
-            - echo $PROVIDER_VERSION
-            - echo $NEXT_PROVIDER_VERSION
+            - echo ${PROVIDER_VERSION}
+            - echo ${NEXT_PROVIDER_VERSION}
             - echo "Rename the build to make it work on Ubuntu"
             - cat GNUmakefile | sed -e "s/darwin_amd64/linux_amd64/g" > GNUmakefile.tmp
             - cp GNUmakefile.tmp GNUmakefile && rm GNUmakefile.tmp
@@ -130,8 +130,6 @@ pipelines:
                             --header "content-type: application/json;charset=UTF-8" \
                             --header "x-requested-with: XMLHttpRequest" \
                             -d '{"user":"admin","password":"'"${ARTIFACTORY_PASSWORD}"'","type":"login"}' | grep FALSE)
-            #TODO: remove
-            - echo ${COOKIES}
             - export REFRESHTOKEN=$(echo $COOKIES | grep REFRESHTOKEN | awk '{print $14}')
             - export ACCESSTOKEN=$(echo $COOKIES | grep ACCESSTOKEN | awk '{print $7}') # awk returns null on Mac, and the actual key on Ubuntu
             - >-
@@ -140,19 +138,16 @@ pipelines:
                                   --header "x-requested-with: XMLHttpRequest" \
                                   --header "cookie: ACCESSTOKEN=${ACCESSTOKEN}; REFRESHTOKEN=${REFRESHTOKEN}")
             - add_run_variables ARTIFACTORY_ACCESS_TOKEN=${ACCESS_KEY}
-            #TODO: remove
-            - echo ${ACCESS_KEY}
             - echo "Unset ARTIFACTORY_PASSWORD, acceptance test will use ARTIFACTORY_ACCESS_TOKEN instead"
             - unset ARTIFACTORY_PASSWORD
             - export TF_ACC=true
             #- make acceptance
-            # TODO: test again after migration to repo21, remove echo
-            - export SONAR_TOKEN=${int_terraform_artifactory_sonarqube_token} && echo ${SONAR_TOKEN}
+            - export SONAR_TOKEN=${int_terraform_artifactory_sonarqube_token}
             - make scan
             - make install
           onSuccess:
             - echo "Success"
-            - send_notification partnership_slack --text "Terraform Provider Artifactory step ${step_name} is completed. Version ${NEXT_PROVIDER_VERSION:-" wasn't set"}."
+            - send_notification partnership_slack --text "${pipeline_name} step <${step_url}|${step_name}> is completed. Version ${PROVIDER_VERSION:-" wasn't set"}."
           onFailure:
             - echo "Failure"
             - send_notification partnership_slack --text "${pipeline_name} pipeline failed on <${step_url}|${step_name}> step"
@@ -203,7 +198,7 @@ pipelines:
 #                  git commit --author="JFrog CI <jfrog-solutions-ci+1@jfrog.com>" -m "JFrog Pipelines - Add Artifactory version to CHANGELOG.md"
 #                  git push https://${res_GitHubTFProviderRepo1JFrog_gitProvider_token}${TFProviderRepo}
 #                else
-#                  echo "There is nothing to commit, Artifactory version didn't change since last commit"
+#                  echo "There is nothing to commit, Artifactory version didn't change since last commit, or test didn't run."
 #                fi
 #              fi
 #          onSuccess:
@@ -212,9 +207,9 @@ pipelines:
 #          onFailure:
 #            - >-
 #              if [[ "${PR_URL}" == null ]]; then
-#                send_notification partnership_slack --text "${step_name} step is failed. PR was not created (already exists from this head branch?)"
+#                send_notification partnership_slack --text "${pipeline_name} step ${step_name} is failed. PR was not created (already exists from this head branch?)"
 #              else
-#                send_notification partnership_slack --text "Pipeline failed on <${step_url}|${step_name}> step"
+#                send_notification partnership_slack --text "${pipeline_name} failed on <${step_url}|${step_name}> step."
 #              fi
 #          onComplete:
 #            - echo "Cleaning up"
