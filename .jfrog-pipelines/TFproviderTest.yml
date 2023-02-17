@@ -171,13 +171,14 @@ pipelines:
             - export PR_BRANCH=${res_GitHubTFProviderRepo1JFrog_headCommitRef}
             - export PR_TITLE=$(echo ${res_GitHubTFProviderRepo1JFrog_commitMessage:0:100}... | sed 's/[^[:print:]\t]//g')
             - >-
-              if [[ "${PR_URL}" == null ]]; then
-                echo "PR was not created (already exists from this head branch?). PR link is empty!"
+              if [[ -z "${PR_URL}" ]] || [[ -z ${res_GitHubTFProviderRepo1JFrog_headCommitRef} ]]; then
+                echo "PR was not created. PR link or commit branch var is empty!"
                 exit 1
               fi
             - >-
-              if [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != master ]] && [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != main ]]; then
+              if [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != master ]] && [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != main ]] && [[ $"{res_GitHubTFProviderRepo1JFrog_isPullRequest}" == true ]]; then
                 cd ${res_GitHubTFProviderRepo1JFrog_resourcePath}
+                echo "Checking out the branch ${res_GitHubTFProviderRepo1JFrog_headCommitRef} where the PR was created from"
                 git checkout -b ${res_GitHubTFProviderRepo1JFrog_headCommitRef}
                 sed -i -E "0,/(##\s.+\..+\..+\s\(.+\)).*/ s/(##\s.+\..+\..+\s\(.+\)).*/\1. Tested on Artifactory ${ARTIFACTORY_VERSION}/" CHANGELOG.md
                 head -10 CHANGELOG.md
@@ -193,7 +194,7 @@ pipelines:
                   git commit --author="JFrog CI <jfrog-solutions-ci+1@jfrog.com>" -m "JFrog Pipelines - Add Artifactory version to CHANGELOG.md"
                   git push https://${res_GitHubTFProviderRepo1JFrog_gitProvider_token}${TFProviderRepo}
                 else
-                  echo "There is nothing to commit, Artifactory version didn't change since last commit, or test didn't run."
+                  echo "There is nothing to commit: pipeline run wasn't triggered by the created PR."
                 fi
               fi
           onSuccess:
