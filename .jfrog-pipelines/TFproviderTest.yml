@@ -152,6 +152,8 @@ pipelines:
       - name: pr_info_add_rt_version
         type: Bash
         configuration:
+          nodePool: default
+          priority: 1
           integrations:
             - name: partnership_slack
             - name: partnership_github
