@@ -170,11 +170,11 @@ pipelines:
             - export PR_COMMITTER=${res_GitHubTFProviderRepo1JFrog_committerLogin}
             - export PR_BRANCH=${res_GitHubTFProviderRepo1JFrog_headCommitRef}
             - export PR_TITLE=$(echo ${res_GitHubTFProviderRepo1JFrog_commitMessage:0:100}... | sed 's/[^[:print:]\t]//g')
-            - >-
-              if [[ -z "${PR_URL}" ]] || [[ -z ${res_GitHubTFProviderRepo1JFrog_headCommitRef} ]]; then
-                echo "PR was not created. PR link or commit branch var is empty!"
-                exit 1
-              fi
+#            - >-
+#              if [[ -z "${PR_URL}" ]] || [[ -z ${res_GitHubTFProviderRepo1JFrog_headCommitRef} ]]; then
+#                echo "PR was not created. PR link or commit branch var is empty!"
+#                exit 1
+#              fi
             - >-
               if [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != master ]] && [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != main ]] && [[ $"{res_GitHubTFProviderRepo1JFrog_isPullRequest}" == true ]]; then
                 cd ${res_GitHubTFProviderRepo1JFrog_resourcePath}
@@ -194,7 +194,7 @@ pipelines:
                   git commit --author="JFrog CI <jfrog-solutions-ci+1@jfrog.com>" -m "JFrog Pipelines - Add Artifactory version to CHANGELOG.md"
                   git push https://${res_GitHubTFProviderRepo1JFrog_gitProvider_token}${TFProviderRepo}
                 else
-                  echo "There is nothing to commit: pipeline run wasn't triggered by the created PR."
+                  echo "There is nothing to commit: pipeline run wasn't triggered by the PR."
                 fi
               fi
           onSuccess:
