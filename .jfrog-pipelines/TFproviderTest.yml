@@ -44,8 +44,6 @@ pipelines:
             SONAR_SCANNER_OPTS: "-server"
         execution:
           onStart:
-            #TODO: remove
-            - printenv
             - echo "Preparing for work. Install Helm, Terraform, GoReleaser, and SonarQube"
             - ls -al && pwd
             - echo "Helm 3 install"
@@ -170,15 +168,11 @@ pipelines:
             - export PR_COMMITTER=${res_GitHubTFProviderRepo1JFrog_committerLogin}
             - export PR_BRANCH=${res_GitHubTFProviderRepo1JFrog_headCommitRef}
             - export PR_TITLE=$(echo ${res_GitHubTFProviderRepo1JFrog_commitMessage:0:100}... | sed 's/[^[:print:]\t]//g')
-#            - >-
-#              if [[ -z "${PR_URL}" ]] || [[ -z ${res_GitHubTFProviderRepo1JFrog_headCommitRef} ]]; then
-#                echo "PR was not created. PR link or commit branch var is empty!"
-#                exit 1
-#              fi
             - >-
               if [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != master ]] && [[ "${res_GitHubTFProviderRepo1JFrog_headCommitRef}" != main ]] && [[ $"{res_GitHubTFProviderRepo1JFrog_isPullRequest}" == true ]]; then
+                echo "The pipeline was triggered by the PR, add Artifactory version to CHANGELOG.md and send the PR data to slack channel."
                 cd ${res_GitHubTFProviderRepo1JFrog_resourcePath}
-                echo "Checking out the branch ${res_GitHubTFProviderRepo1JFrog_headCommitRef} where the PR was created from"
+                echo "Checking out the branch ${res_GitHubTFProviderRepo1JFrog_headCommitRef} where the PR was created from."
                 git checkout -b ${res_GitHubTFProviderRepo1JFrog_headCommitRef}
                 sed -i -E "0,/(##\s.+\..+\..+\s\(.+\)).*/ s/(##\s.+\..+\..+\s\(.+\)).*/\1. Tested on Artifactory ${ARTIFACTORY_VERSION}/" CHANGELOG.md
                 head -10 CHANGELOG.md
@@ -194,12 +188,15 @@ pipelines:
                   git commit --author="JFrog CI <jfrog-solutions-ci+1@jfrog.com>" -m "JFrog Pipelines - Add Artifactory version to CHANGELOG.md"
                   git push https://${res_GitHubTFProviderRepo1JFrog_gitProvider_token}${TFProviderRepo}
                 else
-                  echo "There is nothing to commit: pipeline run wasn't triggered by the PR."
+                  echo "There is nothing to commit: Artifactory version hadn't changed."
                 fi
               fi
           onSuccess:
             - echo "Success"
-            - send_notification partnership_slack --text "<${res_GitHubTFProviderRepo1JFrog_gitRepoRepositoryHttpsUrl}|Terraform Provider>. A new PR was submitted by *${PR_COMMITTER}* - <${PR_URL}|${PR_TITLE}>, branch *${PR_BRANCH}*. Changes tested successfully. <@U01H1SLSPA8> or <@UNDRUL1EU> please, review and merge."
+            - >-
+              if [[ ! -z ${res_GitHubTFProviderRepo1JFrog_headCommitRef} ]]; then
+                send_notification partnership_slack --text "<${res_GitHubTFProviderRepo1JFrog_gitRepoRepositoryHttpsUrl}|Terraform Provider>. A new PR was submitted by *${PR_COMMITTER}* - <${PR_URL}|${PR_TITLE}>, branch *${PR_BRANCH}*. Changes tested successfully. <@U01H1SLSPA8> or <@UNDRUL1EU> please, review and merge."
+              fi
           onFailure:
             - >-
               if [[ "${PR_URL}" == null ]]; then
