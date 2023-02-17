@@ -37,7 +37,7 @@ pipelines:
             - name: GitHubTFProviderRepo1JFrog
           environmentVariables:
             USE_LATEST_RT_VERSION: "true"
-            ARTIFACTORY_TEST_VERSION: 7.35.1
+            ARTIFACTORY_TEST_VERSION: 7.49.8
             GO_VERSION: 1.18
             SONAR_SCANNER_VERSION: 4.7.0.2747
             SONAR_SCANNER_HOME: $HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
@@ -87,7 +87,7 @@ pipelines:
             - cat sample.tf
             - echo "Download RT licenses from Partners RT instanse to scripts folder"
             - jfrog config show && jfrog --version
-            # TODO: move this file somewhere on repo21
+            # TODO: move this file somewhere on repo21 - no need, var works fine
             #- jfrog rt dl fozzie/native-steps/license/artifactory.cluster.license scripts/
             #- ls -al && pwd
             #- cp scripts/native-steps/license/artifactory.cluster.license scripts/artifactory.lic
@@ -146,8 +146,8 @@ pipelines:
             - unset ARTIFACTORY_PASSWORD
             - export TF_ACC=true
             - make acceptance
-            # TODO: test again after migration to repo21
-            - export SONAR_TOKEN=int_terraform_artifactory_sonarqube_token
+            # TODO: test again after migration to repo21, remove echo
+            - export SONAR_TOKEN=int_terraform_artifactory_sonarqube_token && echo ${SONAR_TOKEN}
             - make scan
             - make install
           onSuccess:
