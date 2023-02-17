@@ -147,7 +147,7 @@ pipelines:
             - export TF_ACC=true
             - make acceptance
             # TODO: test again after migration to repo21, remove echo
-            - export SONAR_TOKEN=int_terraform_artifactory_sonarqube_token && echo ${SONAR_TOKEN}
+            - export SONAR_TOKEN=${int_terraform_artifactory_sonarqube_token} && echo ${SONAR_TOKEN}
             - make scan
             - make install
           onSuccess:
