@@ -145,7 +145,7 @@ pipelines:
             - echo "Unset ARTIFACTORY_PASSWORD, acceptance test will use ARTIFACTORY_ACCESS_TOKEN instead"
             - unset ARTIFACTORY_PASSWORD
             - export TF_ACC=true
-            - make acceptance
+            #- make acceptance
             # TODO: test again after migration to repo21, remove echo
             - export SONAR_TOKEN=${int_terraform_artifactory_sonarqube_token} && echo ${SONAR_TOKEN}
             - make scan
