@@ -204,9 +204,10 @@ func ResourceArtifactoryScopedToken() *schema.Resource {
 			Sensitive: true,
 		},
 		"reference_token": {
-			Type:      schema.TypeString,
-			Computed:  true,
-			Sensitive: true,
+			Type:        schema.TypeString,
+			Computed:    true,
+			Sensitive:   true,
+			Description: "Should a reference token also be created? Defaults to `false`",
 		},
 		"token_type": {
 			Type:     schema.TypeString,
