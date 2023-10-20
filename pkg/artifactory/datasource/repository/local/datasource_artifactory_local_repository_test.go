@@ -12,21 +12,18 @@ import (
 	"github.com/jfrog/terraform-provider-artifactory/v9/pkg/artifactory/resource/security"
 	"github.com/jfrog/terraform-provider-shared/testutil"
 	utilsdk "github.com/jfrog/terraform-provider-shared/util/sdk"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 func TestAccDataSourceLocalAllPackageTypes(t *testing.T) {
 	for _, packageType := range local.PackageTypesLikeGeneric {
-		title := fmt.Sprintf("%s", cases.Title(language.AmericanEnglish).String(strings.ToLower(packageType)))
-		t.Run(title, func(t *testing.T) {
+		t.Run(packageType, func(t *testing.T) {
 			resource.Test(mkTestCase(packageType, t))
 		})
 	}
 }
 
 func mkTestCase(packageType string, t *testing.T) (*testing.T, resource.TestCase) {
-	name := fmt.Sprintf("terraform-local-%s-%d-full", packageType, testutil.RandomInt())
+	name := fmt.Sprintf("local-%s-%d-full", packageType, testutil.RandomInt())
 	resourceName := fmt.Sprintf("data.artifactory_local_%s_repository.%s", packageType, name)
 	xrayIndex := testutil.RandBool()
 
