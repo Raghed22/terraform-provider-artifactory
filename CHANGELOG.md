@@ -1,3 +1,14 @@
+## 9.8.0 (Nov 1, 2023)
+
+FEATURES:
+
+* data/artifactory_repositories: add new data source for retrieving a list of repositories based on filters. PR: [#839](https://github.com/jfrog/terraform-provider-artifactory/pull/839) Issue: [#716](https://github.com/jfrog/terraform-provider-artifactory/issues/716)
+* data/artifactory_local_huggingfaceml_repository: add documentation.
+
+SECURITY:
+
+* provider: Bump google.golang.org/grpc from 1.56.1 to 1.56.3 PR: [#837](https://github.com/jfrog/terraform-provider-artifactory/pull/837)
+
 ## 9.7.2 (Oct 19, 2023). Tested on Artifactory 7.71.3 with Terraform CLI v1.6.2
 
 BUG FIX:
